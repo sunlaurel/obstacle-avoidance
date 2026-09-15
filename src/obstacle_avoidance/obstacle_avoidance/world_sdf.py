@@ -258,11 +258,11 @@ def generate_world_sdf() -> str:
       <shadows>true</shadows>
     </scene>
 
-    <gui fullscreen="false">
-      <plugin name="3D View" filename="GzScene3D">
+    <gui fullscreen="0">
+      <plugin filename="MinimalScene" name="3D View">
         <gz-gui>
           <title>3D View</title>
-          <property type="bool" key="showTitleBar">0</property>
+          <property type="bool" key="showTitleBar">false</property>
           <property type="string" key="state">docked</property>
         </gz-gui>
         <engine>ogre2</engine>
@@ -271,29 +271,75 @@ def generate_world_sdf() -> str:
         <background_color>0.65 0.72 0.80</background_color>
         <camera_pose>-14 -14 16 0 0.55 0.78</camera_pose>
       </plugin>
-      <plugin name="World control" filename="WorldControl">
+      <plugin filename="EntityContextMenuPlugin" name="Entity context menu">
+        <gz-gui>
+          <property key="state" type="string">floating</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="GzSceneManager" name="Scene Manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="InteractiveViewControl" name="Interactive view control">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="WorldControl" name="World control">
         <gz-gui>
           <title>World control</title>
-          <property type="bool" key="showTitleBar">0</property>
-          <property type="string" key="state">floating</property>
-          <property type="double" key="width">121</property>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="bool" key="resizable">false</property>
           <property type="double" key="height">72</property>
+          <property type="double" key="width">121</property>
+          <property type="double" key="z">1</property>
+          <property type="string" key="state">floating</property>
+          <anchors target="3D View">
+            <line own="left" target="left"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
         </gz-gui>
-        <play_pause>1</play_pause>
-        <step>1</step>
-        <start_paused>0</start_paused>
+        <play_pause>true</play_pause>
+        <step>true</step>
+        <start_paused>false</start_paused>
+        <use_event>true</use_event>
       </plugin>
-      <plugin name="World stats" filename="WorldStats">
+      <plugin filename="WorldStats" name="World stats">
         <gz-gui>
           <title>World stats</title>
-          <property type="bool" key="showTitleBar">0</property>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="bool" key="resizable">false</property>
+          <property type="double" key="height">110</property>
+          <property type="double" key="width">290</property>
+          <property type="double" key="z">1</property>
           <property type="string" key="state">floating</property>
+          <anchors target="3D View">
+            <line own="right" target="right"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
         </gz-gui>
-        <sim_time>1</sim_time>
-        <real_time>1</real_time>
-        <real_time_factor>1</real_time_factor>
+        <sim_time>true</sim_time>
+        <real_time>true</real_time>
+        <real_time_factor>true</real_time_factor>
+        <iterations>true</iterations>
       </plugin>
-      <plugin name="Entity tree" filename="EntityTree"/>
+      <plugin filename="EntityTree" name="Entity tree">
+        <gz-gui>
+          <property type="string" key="state">docked_collapsed</property>
+        </gz-gui>
+      </plugin>
     </gui>
 
     <light type="directional" name="sun">
