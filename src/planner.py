@@ -19,7 +19,7 @@ import heapq
 import math
 from typing import Iterable, Sequence
 
-from nodes.obstacle_map import ROBOT_RADIUS, is_free, line_of_sight
+from src.obstacle_map import ROBOT_RADIUS, is_free, line_of_sight
 
 
 GridPoint = tuple[int, int]

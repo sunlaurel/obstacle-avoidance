@@ -13,9 +13,8 @@ setup(
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml"]),
         (os.path.join("share", package_name, "launch"), glob("launch/*.py")),
-        (os.path.join("share", package_name, "worlds"), glob("worlds/*")),
+        (os.path.join("share", package_name, "world"), glob("worlds/*")),
         (os.path.join("share", package_name, "config"), glob("config/*")),
-        (os.path.join("share", package_name, "rviz"), glob("rviz/*")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -26,10 +25,8 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "waypoint_generator = obstacle_avoidance.waypoint_generator:main",
-            "navigator = obstacle_avoidance.navigator:main",
-            "fake_lidar = obstacle_avoidance.fake_lidar:main",
-            "progress_monitor = obstacle_avoidance.progress_monitor:main",
+            "waypoint_generator = src.waypoint_generator:main",
+            "navigator = src.navigator:main",
         ],
     },
 )

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from nodes.obstacle_map import OBSTACLES, BoxObstacle
+from src.obstacle_map import OBSTACLES, BoxObstacle
 
 
 def _box_model(box: BoxObstacle) -> str:

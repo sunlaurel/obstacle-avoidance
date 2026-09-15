@@ -31,8 +31,8 @@ from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
 from std_msgs.msg import Header, Int32, String
 
-from nodes.obstacle_map import ROBOT_RADIUS, is_occupied
-from nodes.planner import (
+from src.obstacle_map import ROBOT_RADIUS, is_occupied
+from src.planner import (
     OccupancyGrid,
     follow_path_cmd,
     plan_path,

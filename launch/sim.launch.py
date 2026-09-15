@@ -16,7 +16,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description() -> LaunchDescription:
     pkg = get_package_share_directory("obstacle_avoidance")
-    world = os.path.join(pkg, "worlds", "obstacle_course.sdf")
+    world = os.path.join(pkg, "world", "obstacle_course.sdf")
     bridge = os.path.join(pkg, "config", "bridge.yaml")
     gz_launch = os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
 
@@ -51,14 +51,6 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
     )
 
-    lidar_node = Node(
-        package="obstacle_avoidance",
-        executable="fake_lidar",
-        name="fake_lidar",
-        parameters=[{"use_sim_time": use_sim_time}],
-        output="screen",
-    )
-
     navigator_node = Node(
         package="obstacle_avoidance",
         executable="navigator",
@@ -85,7 +77,6 @@ def generate_launch_description() -> LaunchDescription:
             gz_gui,
             bridge_node,
             waypoint_node,
-            lidar_node,
             navigator_node,
         ]
     )

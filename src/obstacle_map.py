@@ -19,7 +19,6 @@ from dataclasses import dataclass
 import math
 from typing import Iterable, Sequence
 
-
 @dataclass(frozen=True)
 class BoxObstacle:
     """Axis-aligned box in the XY plane, optional pitch for ramps."""
