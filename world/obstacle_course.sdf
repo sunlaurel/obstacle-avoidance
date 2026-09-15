@@ -274,29 +274,7 @@
           </material>
         </visual>
       </link>
-    </model>
-
-    <model name="ramp">
-      <static>true</static>
-      <pose>7.0 -6.5 0.35 0.0 0.35 0.0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>3.2 2.4 0.2</size></box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box><size>3.2 2.4 0.2</size></box>
-          </geometry>
-          <material>
-            <ambient>0.78 0.48 0.22 1.0</ambient>
-            <diffuse>0.78 0.48 0.22 1.0</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
-          </material>
-        </visual>
-      </link>
-    </model>
+    </model>  
 
     <model name="vehicle">
       <pose>0 0 0.1625 0 0 0</pose>

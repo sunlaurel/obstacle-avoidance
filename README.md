@@ -5,14 +5,15 @@ differential-drive vehicle that **drives itself** through a randomized sequence
 of XY waypoints. Walls, a hill, and a ramp sit between the goals; the vehicle
 plans around them. There is no keyboard teleop.
 
+[Initial code generation by Cursor, waypoint generation and planner implemented on own]
+
 ## What you get
 
 | Piece | Role |
 | --- | --- |
 | `worlds/obstacle_course.sdf` | Gazebo world: ground, perimeter, interior walls, hill, ramp, vehicle |
 | `waypoint_generator` | Samples free-space XY goals and publishes `/waypoints` |
-| `fake_lidar` | Raycasts the known walls and publishes `/scan` |
-| `navigator` | Reads pose + next goal + scan, publishes `/cmd_vel` on its own |
+| `navigator` | Reads pose + next goal, publishes `/cmd_vel` on its own |
 | `sim.launch.py` | Starts Gazebo, the ROS–Gazebo bridge, and the three nodes |
 
 The vehicle is a blue box on two wheels. Modeling detail is intentionally low.
@@ -62,7 +63,6 @@ the current goal.
 | --- | --- | --- |
 | `/cmd_vel` | `geometry_msgs/Twist` | Navigator → Gazebo DiffDrive |
 | `/odom` | `nav_msgs/Odometry` | Gazebo → navigator |
-| `/scan` | `sensor_msgs/LaserScan` | Fake lidar (replaceable) |
 | `/waypoints` | `geometry_msgs/PoseArray` | Latched mission |
 | `/planned_path` | `nav_msgs/Path` | A* result |
 | `/current_goal` | `geometry_msgs/PoseStamped` | Active waypoint |
@@ -80,13 +80,6 @@ Comments in the source mark the same three extension points:
 2. **Global planner** — `obstacle_avoidance/planner.py`, function `plan_path`.
    The default is 8-connected A* on a grid inflated from the wall rectangles.
    Drop in Nav2, RRT, D* Lite, etc. Return a list of `(x, y)` poses.
-
-3. **Local controller / sensing** — `obstacle_avoidance/navigator.py`, method
-   `Navigator.compute_cmd_vel`, and `obstacle_avoidance/fake_lidar.py`.
-   `compute_cmd_vel` already receives current pose, the next goal, the planned
-   path, and a `LaserScan`. To use a real Gazebo lidar, add a `gpu_lidar`
-   plugin to the vehicle SDF, bridge it to `/scan`, and stop launching
-   `fake_lidar`.
 
 World geometry lives in `obstacle_avoidance/obstacle_map.py` (`OBSTACLES`).
 After editing it, regenerate the SDF so Gazebo and the planner stay in sync:

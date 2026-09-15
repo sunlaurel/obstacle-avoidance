@@ -19,7 +19,7 @@ import heapq
 import math
 from typing import Iterable, Sequence
 
-from obstacle_avoidance.obstacle_map import ROBOT_RADIUS, is_free, line_of_sight
+from nodes.obstacle_map import ROBOT_RADIUS, is_free, line_of_sight
 
 
 GridPoint = tuple[int, int]
@@ -255,16 +255,3 @@ def follow_path_cmd(
     if goal_dist < 1.0:
         v *= max(0.25, goal_dist)
     return v, w
-
-
-def front_scan_min(ranges: Iterable[float], angle_min: float, angle_inc: float, half_width: float = 0.45) -> float:
-    """Smallest return in a forward cone of width ``2 * half_width`` radians."""
-    nearest = float("inf")
-    for i, r in enumerate(ranges):
-        if r is None or math.isinf(r) or math.isnan(r) or r <= 0.0:
-            continue
-        ang = angle_min + i * angle_inc
-        wrapped = wrap_angle(ang)
-        if abs(wrapped) <= half_width:
-            nearest = min(nearest, r)
-    return nearest

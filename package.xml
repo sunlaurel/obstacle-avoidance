@@ -4,10 +4,9 @@
   <name>obstacle_avoidance</name>
   <version>0.1.0</version>
   <description>
-    Barebones ROS 2 Jazzy + Gazebo Harmonic simulation: a box vehicle
-    autonomously visits randomized XY waypoints around walls, a hill, and a ramp.
+    ROS 2 Jazzy + Gazebo Harmonic simulation for autonomous navigation
   </description>
-  <maintainer email="cursoragent@cursor.com">Cursor Agent</maintainer>
+  <maintainer email="laurel.sun.06@gmail.com">Laurel</maintainer>
   <license>Apache-2.0</license>
 
   <exec_depend>rclpy</exec_depend>
@@ -20,7 +19,6 @@
   <exec_depend>rosgraph_msgs</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
-  <exec_depend>rviz2</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <test_depend>python3-pytest</test_depend>

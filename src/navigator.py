@@ -3,7 +3,6 @@
 Takes:
   * current pose from ``/odom``
   * the next goal from the latched ``/waypoints`` list
-  * obstacle info from ``/scan`` (and the occupancy grid used to plan)
 
 Publishes:
   * ``/cmd_vel`` — differential-drive Twist, no teleop
@@ -30,14 +29,12 @@ from geometry_msgs.msg import PoseArray, PoseStamped, Twist
 from nav_msgs.msg import Odometry, Path
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
-from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Header, Int32, String
 
-from obstacle_avoidance.obstacle_map import ROBOT_RADIUS, is_occupied
-from obstacle_avoidance.planner import (
+from nodes.obstacle_map import ROBOT_RADIUS, is_occupied
+from nodes.planner import (
     OccupancyGrid,
     follow_path_cmd,
-    front_scan_min,
     plan_path,
     yaw_from_quat,
 )
@@ -60,7 +57,6 @@ class Navigator(Node):
         self._index = 0
         self._pose: tuple[float, float, float] | None = None
         self._path: list[tuple[float, float]] = []
-        self._scan: LaserScan | None = None
         self._last_replan = 0.0
         self._stuck_xy: tuple[float, float] | None = None
         self._stuck_since: float | None = None
@@ -73,7 +69,6 @@ class Navigator(Node):
         )
         self.create_subscription(PoseArray, "/waypoints", self._on_waypoints, latched)
         self.create_subscription(Odometry, "/odom", self._on_odom, qos_profile_sensor_data)
-        self.create_subscription(LaserScan, "/scan", self._on_scan, qos_profile_sensor_data)
 
         self._cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self._path_pub = self.create_publisher(Path, "/planned_path", 10)
@@ -98,9 +93,6 @@ class Navigator(Node):
         p = msg.pose.pose.position
         q = msg.pose.pose.orientation
         self._pose = (p.x, p.y, yaw_from_quat(q.z, q.w))
-
-    def _on_scan(self, msg: LaserScan) -> None:
-        self._scan = msg
 
     def _publish_status(self, text: str) -> None:
         msg = String()
@@ -131,7 +123,6 @@ class Navigator(Node):
         navigation logic. You already have:
           * (x, y, yaw)  — current pose from /odom
           * self._current_goal() — next waypoint
-          * self._scan — LaserScan (fake lidar or a real plugin)
           * self._grid / obstacle_map — known wall rectangles
         Publish by returning a Twist; the timer publishes it on /cmd_vel.
         """
@@ -180,14 +171,6 @@ class Navigator(Node):
                 return cmd
 
         v, w = follow_path_cmd(x, y, yaw, self._path)
-
-        # Reactive safety layer using the (fake or real) lidar. If something is
-        # immediately in front of the bumper, stop and turn toward free space.
-        if self._scan is not None and self._scan.ranges:
-            front = front_scan_min(self._scan.ranges, self._scan.angle_min, self._scan.angle_increment)
-            if front < self._stop_range:
-                v = 0.0
-                w = 0.9 if w >= 0.0 else -0.9
 
         cmd.linear.x = float(v)
         cmd.angular.z = float(w)

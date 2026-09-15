@@ -63,22 +63,6 @@ OBSTACLES: tuple[BoxObstacle, ...] = (
     BoxObstacle("wall_c", -5.0, 3.25, WALL_HEIGHT / 2, 0.4, 9.5, WALL_HEIGHT, kind="wall", color=WALL_COLOR),
     # Hill / mound the vehicle must go around (not over).
     BoxObstacle("hill", 0.0, 7.5, 0.6, 3.0, 3.0, 1.2, kind="hill", color=HILL_COLOR),
-    # Ramp-shaped obstacle. occupy=True so the planner treats it as blocked
-    # (the vehicle must not drive through it). The SDF uses a pitched box so it
-    # looks like a ramp in Gazebo.
-    BoxObstacle(
-        "ramp",
-        7.0,
-        -6.5,
-        0.35,
-        3.2,
-        2.4,
-        0.2,
-        pitch=0.35,
-        kind="ramp",
-        occupy=True,
-        color=RAMP_COLOR,
-    ),
 )
 
 OCCUPIED: tuple[BoxObstacle, ...] = tuple(o for o in OBSTACLES if o.occupy)
