@@ -78,7 +78,8 @@ class Navigator(Node):
         self._cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self._path_pub = self.create_publisher(Path, "/planned_path", 10)
         self._goal_pub = self.create_publisher(PoseStamped, "/current_goal", 10)
-        self._idx_pub = self.create_publisher(Int32, "/waypoint_index", 10)
+        # Latched so Gazebo can spawn the active-waypoint sphere after we start.
+        self._idx_pub = self.create_publisher(Int32, "/waypoint_index", latched)
         self._status_pub = self.create_publisher(String, "/nav_status", 10)
 
         self.create_timer(0.05, self._tick)  # 20 Hz control loop
@@ -92,7 +93,13 @@ class Navigator(Node):
         self._index = 0
         self._path = []
         self._done = False
+        self._publish_index()
         self.get_logger().info(f"Received {len(wps)} waypoints")
+
+    def _publish_index(self) -> None:
+        idx = Int32()
+        idx.data = self._index
+        self._idx_pub.publish(idx)
 
     def _on_odom(self, msg: Odometry) -> None:
         p = msg.pose.pose.position
@@ -147,9 +154,7 @@ class Navigator(Node):
             self.get_logger().info(f"Reached waypoint {self._index + 1}/{len(self._waypoints)} at ({gx:.2f}, {gy:.2f})")
             self._index += 1
             self._path = []
-            idx = Int32()
-            idx.data = self._index
-            self._idx_pub.publish(idx)
+            self._publish_index()
             if self._index >= len(self._waypoints):
                 self._done = True
                 self._publish_status("mission_complete")

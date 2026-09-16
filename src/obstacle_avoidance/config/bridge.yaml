@@ -1,6 +1,8 @@
 # Bridge Gazebo Harmonic <-> ROS 2 Jazzy.
 # cmd_vel is ROS -> GZ (navigator drives the vehicle).
 # odom / clock / tf are GZ -> ROS.
+# Spawn / set_pose / remove for the one-at-a-time waypoint sphere are extra
+# service arguments on the parameter_bridge node in sim.launch.py.
 - ros_topic_name: "/cmd_vel"
   gz_topic_name: "/cmd_vel"
   ros_type_name: "geometry_msgs/msg/Twist"

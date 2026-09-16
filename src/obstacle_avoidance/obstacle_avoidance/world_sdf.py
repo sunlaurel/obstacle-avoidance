@@ -390,6 +390,34 @@ def generate_world_sdf() -> str:
 """
 
 
+def current_waypoint_dot_sdf(name: str = "current_waypoint_dot", radius: float = 0.28) -> str:
+    """Visual-only sphere spawned at the active waypoint.
+
+    No ``<collision>`` so the vehicle can drive through it; Gazebo still
+    shows the mesh. Used by ``gazebo_waypoint_dot`` (one model, moved with
+    SetEntityPose) — not baked into the world SDF.
+    """
+    return f"""<?xml version="1.0" ?>
+<sdf version="1.11">
+  <model name="{name}">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <sphere><radius>{radius}</radius></sphere>
+        </geometry>
+        <material>
+          <ambient>0.15 0.95 0.25 1</ambient>
+          <diffuse>0.15 0.95 0.25 1</diffuse>
+          <emissive>0.05 0.45 0.08 1</emissive>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
+"""
+
+
 def world_path() -> Path:
     return Path(__file__).resolve().parents[1] / "worlds" / "obstacle_course.sdf"
 

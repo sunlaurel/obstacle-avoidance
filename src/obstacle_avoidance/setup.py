@@ -30,6 +30,7 @@ setup(
             "navigator = obstacle_avoidance.navigator:main",
             "fake_lidar = obstacle_avoidance.fake_lidar:main",
             "progress_monitor = obstacle_avoidance.progress_monitor:main",
+            "gazebo_waypoint_dot = obstacle_avoidance.gazebo_waypoint_dot:main",
         ],
     },
 )

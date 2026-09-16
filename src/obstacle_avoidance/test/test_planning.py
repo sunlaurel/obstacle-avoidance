@@ -8,7 +8,7 @@ import random
 from obstacle_avoidance.obstacle_map import START_XY, is_free, is_occupied, raycast
 from obstacle_avoidance.planner import OccupancyGrid, plan_path
 from obstacle_avoidance.mission import sample_waypoints
-from obstacle_avoidance.world_sdf import generate_world_sdf, world_path
+from obstacle_avoidance.world_sdf import current_waypoint_dot_sdf, generate_world_sdf, world_path
 
 
 def test_origin_is_free() -> None:
@@ -57,6 +57,14 @@ def test_sample_waypoints_are_free_and_reachable() -> None:
         assert is_free(*wp)
         assert plan_path(prev, wp, grid)
         prev = wp
+
+
+def test_waypoint_dot_sdf_is_visual_only() -> None:
+    sdf = current_waypoint_dot_sdf("current_waypoint_dot")
+    assert "<collision" not in sdf
+    assert "<static>true</static>" in sdf
+    assert "<sphere>" in sdf
+    assert 'name="current_waypoint_dot"' in sdf
 
 
 def test_committed_world_matches_generator() -> None:

@@ -61,6 +61,8 @@ class WaypointGenerator(Node):
             reliability=ReliabilityPolicy.RELIABLE,
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
+        # Full sequence for the navigator. Gazebo shows only the active index
+        # (see gazebo_waypoint_dot); RViz may still use /waypoint_markers.
         self._wp_pub = self.create_publisher(PoseArray, "/waypoints", latched)
         self._marker_pub = self.create_publisher(MarkerArray, "/waypoint_markers", latched)
         self._goal_pub = self.create_publisher(PoseStamped, "/first_goal", latched)

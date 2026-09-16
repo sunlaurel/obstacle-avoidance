@@ -35,11 +35,19 @@ def generate_launch_description() -> LaunchDescription:
         condition=UnlessCondition(LaunchConfiguration("gui")),
     )
 
+    # Topic bridges live in config/bridge.yaml. Service bridges (spawn / move /
+    # delete the Gazebo waypoint sphere) are extra CLI mappings.
+    world_name = "obstacle_course"
     bridge_node = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
         name="ros_gz_bridge",
         parameters=[{"config_file": bridge, "use_sim_time": use_sim_time}],
+        arguments=[
+            f"/world/{world_name}/create@ros_gz_interfaces/srv/SpawnEntity",
+            f"/world/{world_name}/set_pose@ros_gz_interfaces/srv/SetEntityPose",
+            f"/world/{world_name}/remove@ros_gz_interfaces/srv/DeleteEntity",
+        ],
         output="screen",
     )
 
@@ -69,6 +77,14 @@ def generate_launch_description() -> LaunchDescription:
         package="obstacle_avoidance",
         executable="navigator",
         name="navigator",
+        parameters=[{"use_sim_time": use_sim_time}],
+        output="screen",
+    )
+
+    gazebo_dot_node = Node(
+        package="obstacle_avoidance",
+        executable="gazebo_waypoint_dot",
+        name="gazebo_waypoint_dot",
         parameters=[{"use_sim_time": use_sim_time}],
         output="screen",
     )
@@ -105,6 +121,7 @@ def generate_launch_description() -> LaunchDescription:
             waypoint_node,
             lidar_node,
             navigator_node,
+            gazebo_dot_node,
             rviz_node,
         ]
     )
