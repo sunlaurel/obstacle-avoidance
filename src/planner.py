@@ -91,6 +91,18 @@ def _heuristic(a: GridPoint, b: GridPoint) -> float:
     return math.hypot(a[0] - b[0], a[1] - b[1])
 
 
+def skip_unreachable_waypoint(
+    time_in_radius: float,
+    skip_after_sec: float,
+    dist_to_goal: float,
+    goal_tolerance: float,
+) -> bool:
+    """True if the vehicle lingered in one patch without entering the goal disk."""
+    if dist_to_goal < goal_tolerance:
+        return False
+    return time_in_radius >= skip_after_sec
+
+
 def plan_path(
     start: tuple[float, float],
     goal: tuple[float, float],

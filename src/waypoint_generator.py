@@ -26,23 +26,6 @@ from visualization_msgs.msg import Marker, MarkerArray
 from src.obstacle_map import START_XY, ROBOT_RADIUS, is_free
 from src.planner import OccupancyGrid, plan_path
 
-DOT_SDF = """<?xml version="1.0"?>
-<sdf version="1.8">
-  <model name="wp_dot">
-    <static>true</static>
-    <link name="link">
-      <visual name="visual">
-        <geometry><sphere><radius>0.2</radius></sphere></geometry>
-        <material>
-          <ambient>0.1 0.9 0.2 1</ambient>
-          <diffuse>0.1 0.9 0.2 1</diffuse>
-        </material>
-      </visual>
-    </link>
-  </model>
-</sdf>
-"""
-
 
 def _pose(x: float, y: float) -> Pose:
     pose = Pose()
