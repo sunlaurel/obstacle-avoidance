@@ -14,13 +14,34 @@ from __future__ import annotations
 import random
 import time
 from typing import Sequence
+import subprocess
 
 import rclpy
+import math
 from geometry_msgs.msg import Pose, PoseArray, PoseStamped
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from std_msgs.msg import Header
 from visualization_msgs.msg import Marker, MarkerArray
+from src.obstacle_map import START_XY, ROBOT_RADIUS, is_free
+from src.planner import OccupancyGrid, plan_path
+
+DOT_SDF = """<?xml version="1.0"?>
+<sdf version="1.8">
+  <model name="wp_dot">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry><sphere><radius>0.2</radius></sphere></geometry>
+        <material>
+          <ambient>0.1 0.9 0.2 1</ambient>
+          <diffuse>0.1 0.9 0.2 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
+"""
 
 
 def _pose(x: float, y: float) -> Pose:
@@ -112,15 +133,15 @@ class WaypointGenerator(Node):
             m.header.frame_id = frame_id
             m.ns = "waypoints"
             m.id = i
-            m.type = Marker.CYLINDER
+            m.type = Marker.SPHERE
             m.action = Marker.ADD
             m.pose.position.x = x
             m.pose.position.y = y
-            m.pose.position.z = 0.05
+            m.pose.position.z = 0.15
             m.pose.orientation.w = 1.0
-            m.scale.x = 0.6
-            m.scale.y = 0.6
-            m.scale.z = 0.1
+            m.scale.x = 0.35
+            m.scale.y = 0.35
+            m.scale.z = 0.35
             # Green-ish, later waypoints slightly bluer.
             t = i / max(1, len(self.waypoints) - 1)
             m.color.r = 0.1
