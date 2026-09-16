@@ -14,7 +14,7 @@ from geometry_msgs.msg import PoseArray
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
-from std_msgs.msg import String
+from std_msgs.msg import Int32, String
 
 from obstacle_avoidance.obstacle_map import is_occupied
 
@@ -45,6 +45,7 @@ class ProgressMonitor(Node):
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
         self.create_subscription(PoseArray, "/waypoints", self._on_wps, latched)
+        self.create_subscription(Int32, "/waypoint_index", self._on_index, latched)
         self.create_subscription(Odometry, "/odom", self._on_odom, qos_profile_sensor_data)
         self.create_subscription(String, "/nav_status", self._on_status, 10)
         self.create_timer(0.2, self._tick)
@@ -52,6 +53,16 @@ class ProgressMonitor(Node):
     def _on_wps(self, msg: PoseArray) -> None:
         self.waypoints = [(p.position.x, p.position.y) for p in msg.poses]
         self.get_logger().info(f"Monitoring {len(self.waypoints)} waypoints")
+
+    def _on_index(self, msg: Int32) -> None:
+        # Navigator publishes the next index after a reach *or* a stuck skip.
+        nxt = int(msg.data)
+        if nxt > self._index:
+            self._index = nxt
+            self.get_logger().info(f"Monitor: navigator index={self._index}")
+            if self._index >= self._need:
+                self.success = True
+                self._reason = f"navigator_index_{self._index}"
 
     def _on_status(self, msg: String) -> None:
         if msg.data == "mission_complete":

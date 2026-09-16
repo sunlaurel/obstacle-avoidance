@@ -6,7 +6,7 @@ import math
 import random
 
 from obstacle_avoidance.obstacle_map import START_XY, is_free, is_occupied, raycast
-from obstacle_avoidance.planner import OccupancyGrid, plan_path
+from obstacle_avoidance.planner import OccupancyGrid, plan_path, should_skip_unreachable_waypoint
 from obstacle_avoidance.mission import sample_waypoints
 from obstacle_avoidance.world_sdf import current_waypoint_dot_sdf, generate_world_sdf, world_path
 
@@ -57,6 +57,12 @@ def test_sample_waypoints_are_free_and_reachable() -> None:
         assert is_free(*wp)
         assert plan_path(prev, wp, grid)
         prev = wp
+
+
+def test_skip_unreachable_after_lingering_outside_goal() -> None:
+    assert not should_skip_unreachable_waypoint(7.9, 8.0, 1.2, 0.55)
+    assert should_skip_unreachable_waypoint(8.0, 8.0, 1.2, 0.55)
+    assert not should_skip_unreachable_waypoint(30.0, 8.0, 0.4, 0.55)
 
 
 def test_waypoint_dot_sdf_is_visual_only() -> None:
