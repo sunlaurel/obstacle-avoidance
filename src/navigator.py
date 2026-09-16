@@ -36,7 +36,6 @@ from src.planner import (
     OccupancyGrid,
     follow_path_cmd,
     plan_path,
-    skip_unreachable_waypoint,
     yaw_from_quat,
 )
 
@@ -47,15 +46,11 @@ class Navigator(Node):
         self.declare_parameter("goal_tolerance", 0.55)
         self.declare_parameter("replan_period", 1.0)
         self.declare_parameter("obstacle_stop_range", 0.40)
-        self.declare_parameter("stuck_radius", 0.45)
-        self.declare_parameter("skip_stuck_sec", 8.0)
         self.declare_parameter("frame_id", "odom")
 
         self._goal_tol = float(self.get_parameter("goal_tolerance").value)
         self._stop_range = float(self.get_parameter("obstacle_stop_range").value)
         self._frame_id = str(self.get_parameter("frame_id").value)
-        self._stuck_radius = float(self.get_parameter("stuck_radius").value)
-        self._skip_stuck_sec = float(self.get_parameter("skip_stuck_sec").value)
 
         self._grid = OccupancyGrid()
         self._waypoints: list[tuple[float, float]] = []
@@ -65,8 +60,6 @@ class Navigator(Node):
         self._last_replan = 0.0
         self._stuck_xy: tuple[float, float] | None = None
         self._stuck_since: float | None = None
-        self._linger_xy: tuple[float, float] | None = None
-        self._linger_since: float | None = None
         self._done = False
 
         latched = QoSProfile(
@@ -123,29 +116,6 @@ class Navigator(Node):
             return self._waypoints[self._index]
         return None
 
-    def _reset_progress_timers(self) -> None:
-        self._stuck_xy = None
-        self._stuck_since = None
-        self._linger_xy = None
-        self._linger_since = None
-
-    def _advance_waypoint(self, *, reached: bool, gx: float, gy: float) -> None:
-        n = len(self._waypoints)
-        finished = self._index + 1
-        label = "Reached" if reached else "Skipping unreachable"
-        self.get_logger().info(f"{label} waypoint {finished}/{n} at ({gx:.2f}, {gy:.2f})")
-        self._index += 1
-        self._path = []
-        self._reset_progress_timers()
-        self._publish_index()
-        if self._index >= n:
-            self._done = True
-            self._publish_status("mission_complete")
-            self.get_logger().info("All waypoints visited. Holding position.")
-        elif not reached:
-            self._publish_status(f"skipped_wp{finished} linger>={self._skip_stuck_sec:.1f}s")
-    
-
     def compute_cmd_vel(self, x: float, y: float, yaw: float) -> Twist:
         """Return the next driving command.
 
@@ -175,19 +145,6 @@ class Navigator(Node):
                 self._done = True
                 self._publish_status("mission_complete")
                 self.get_logger().info("All waypoints visited. Holding position.")
-            return cmd
-
-        # Linger window: reset only when the vehicle leaves stuck_radius.
-        # Replans must not reset this, or an unreachable goal would spin forever.
-        if self._linger_xy is None:
-            self._linger_xy = (x, y)
-            self._linger_since = now
-        elif math.hypot(x - self._linger_xy[0], y - self._linger_xy[1]) > self._stuck_radius:
-            self._linger_xy = (x, y)
-            self._linger_since = now
-        linger = 0.0 if self._linger_since is None else now - self._linger_since
-        if skip_unreachable_waypoint(linger, self._skip_stuck_sec, dist, self._goal_tol):
-            self._advance_waypoint(reached=False, gx=gx, gy=gy)
             return cmd
 
         # Replan periodically, or when we have no path, or if we look stuck.
